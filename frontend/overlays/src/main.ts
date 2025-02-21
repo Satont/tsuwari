@@ -1,10 +1,11 @@
+import './style.css'
+
 import urql from '@urql/vue'
 import { createApp } from 'vue'
 
 import MainApp from './app.vue'
 import { router } from './plugins/router.js'
 
-import './style.css'
 import { urqlClientOptions } from '@/plugins/urql.ts'
 
 const app = createApp(MainApp)

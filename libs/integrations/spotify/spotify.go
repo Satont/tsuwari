@@ -14,8 +14,8 @@ import (
 
 type Spotify struct {
 	integration *model.ChannelsIntegrations
-	isRetry     bool
 	db          *gorm.DB
+	isRetry     bool
 }
 
 func New(integration *model.ChannelsIntegrations, db *gorm.DB) *Spotify {
@@ -84,21 +84,25 @@ type SpotifyAlbum struct {
 }
 
 type SpotifyTrack struct {
-	Artists []SpotifyArtist `json:"artists"`
-	Name    string          `json:"name"`
-	Album   SpotifyAlbum    `json:"album"`
+	Artists    []SpotifyArtist `json:"artists"`
+	Name       string          `json:"name"`
+	Album      SpotifyAlbum    `json:"album"`
+	DurationMs int             `json:"duration_ms"`
 }
 
 type SpotifyResponse struct {
-	Track     *SpotifyTrack `json:"item"`
-	IsPlaying bool          `json:"is_playing"`
+	Track      *SpotifyTrack `json:"item"`
+	IsPlaying  bool          `json:"is_playing"`
+	ProgressMs int           `json:"progress_ms"`
 }
 
 type GetTrackResponse struct {
-	Title     string `json:"title"`
-	Artist    string `json:"artist"`
-	Image     string `json:"image"`
-	IsPlaying bool   `json:"isPlaying"`
+	Title      string `json:"title"`
+	Artist     string `json:"artist"`
+	Image      string `json:"image"`
+	IsPlaying  bool   `json:"isPlaying"`
+	DurationMs int    `json:"durationMs"`
+	ProgressMs int    `json:"progressMs"`
 }
 
 func (c *Spotify) GetTrack() (*GetTrackResponse, error) {
@@ -142,38 +146,40 @@ func (c *Spotify) GetTrack() (*GetTrackResponse, error) {
 	}
 
 	return &GetTrackResponse{
-		Artist:    strings.Join(artistsMap, ", "),
-		Title:     data.Track.Name,
-		Image:     imageUrl,
-		IsPlaying: data.IsPlaying,
+		Artist:     strings.Join(artistsMap, ", "),
+		Title:      data.Track.Name,
+		Image:      imageUrl,
+		IsPlaying:  data.IsPlaying,
+		ProgressMs: data.ProgressMs,
+		DurationMs: data.Track.DurationMs,
 	}, nil
 }
 
 type SpotifyProfile struct {
-	Country         string `json:"country"`
-	DisplayName     string `json:"display_name"`
-	Email           string `json:"email"`
-	ExplicitContent struct {
-		FilterEnabled bool `json:"filter_enabled"`
-		FilterLocked  bool `json:"filter_locked"`
-	} `json:"explicit_content"`
+	Country      string `json:"country"`
+	DisplayName  string `json:"display_name"`
+	Email        string `json:"email"`
 	ExternalUrls struct {
 		Spotify string `json:"spotify"`
 	} `json:"external_urls"`
+	Href      string `json:"href"`
+	ID        string `json:"id"`
+	Product   string `json:"product"`
+	Type      string `json:"type"`
+	URI       string `json:"uri"`
 	Followers struct {
 		Href  string `json:"href"`
 		Total int    `json:"total"`
 	} `json:"followers"`
-	Href   string `json:"href"`
-	ID     string `json:"id"`
 	Images []struct {
 		URL    string `json:"url"`
 		Height int    `json:"height"`
 		Width  int    `json:"width"`
 	} `json:"images"`
-	Product string `json:"product"`
-	Type    string `json:"type"`
-	URI     string `json:"uri"`
+	ExplicitContent struct {
+		FilterEnabled bool `json:"filter_enabled"`
+		FilterLocked  bool `json:"filter_locked"`
+	} `json:"explicit_content"`
 }
 
 func (c *Spotify) GetProfile() (*SpotifyProfile, error) {

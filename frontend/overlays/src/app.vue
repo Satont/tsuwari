@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router';
+import { RouterView } from 'vue-router'
 
 // if (import.meta.env.DEV) {
 // 	document.body.style.backgroundColor = '#000';
@@ -7,5 +7,5 @@ import { RouterView } from 'vue-router';
 </script>
 
 <template>
-	<router-view />
+	<RouterView />
 </template>

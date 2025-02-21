@@ -2,10 +2,8 @@ package now_playing_fetcher
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
-	"time"
 
 	"github.com/goccy/go-json"
 	"github.com/redis/go-redis/v9"
@@ -19,21 +17,22 @@ import (
 )
 
 type Opts struct {
-	Gorm      *gorm.DB
-	ChannelID string
-	Redis     *redis.Client
 	Logger    logger.Logger
+	Gorm      *gorm.DB
+	Redis     *redis.Client
+	ChannelID string
 }
 
 type NowPlayingFetcher struct {
-	channelId string
-	gorm      *gorm.DB
-	redis     *redis.Client
-	logger    logger.Logger
+	logger logger.Logger
+
+	gorm  *gorm.DB
+	redis *redis.Client
 
 	lastfmService  *lastfm.Lastfm
 	spotifyService *spotify.Spotify
 	vkService      *vk.VK
+	channelId      string
 }
 
 func New(opts Opts) (*NowPlayingFetcher, error) {
@@ -114,28 +113,10 @@ func (c *NowPlayingFetcher) Fetch(ctx context.Context) (*Track, error) {
 		return nil, err
 	}
 
-	if track != nil && !track.fromCache {
-		redisKey := fmt.Sprintf("overlays:nowplaying:%s", c.channelId)
-		if err := c.redis.Set(ctx, redisKey, track, 10*time.Second).Err(); err != nil {
-			return nil, err
-		}
-	}
-
 	return track, nil
 }
 
 func (c *NowPlayingFetcher) fetchWrapper(ctx context.Context) (*Track, error) {
-	redisKey := fmt.Sprintf("overlays:nowplaying:%s", c.channelId)
-
-	cachedTrack := &Track{}
-	err := c.redis.Get(ctx, redisKey).Scan(cachedTrack)
-	if err == nil {
-		cachedTrack.fromCache = true
-		return cachedTrack, nil
-	} else if !errors.Is(err, redis.Nil) {
-		return nil, err
-	}
-
 	if c.spotifyService != nil {
 		spotifyTrack, err := c.spotifyService.GetTrack()
 		if err != nil {
@@ -148,9 +129,11 @@ func (c *NowPlayingFetcher) fetchWrapper(ctx context.Context) (*Track, error) {
 
 		if spotifyTrack != nil && spotifyTrack.IsPlaying {
 			return &Track{
-				Artist:   spotifyTrack.Artist,
-				Title:    spotifyTrack.Title,
-				ImageUrl: spotifyTrack.Image,
+				Artist:     spotifyTrack.Artist,
+				Title:      spotifyTrack.Title,
+				ImageUrl:   spotifyTrack.Image,
+				ProgressMs: &spotifyTrack.ProgressMs,
+				DurationMs: &spotifyTrack.DurationMs,
 			}, nil
 		}
 	}
@@ -195,10 +178,11 @@ func (c *NowPlayingFetcher) fetchWrapper(ctx context.Context) (*Track, error) {
 }
 
 type Track struct {
-	Artist    string `json:"artist"`
-	Title     string `json:"title"`
-	ImageUrl  string `json:"image_url,omitempty"`
-	fromCache bool   `json:"from_cache,omitempty"`
+	ProgressMs *int   `json:"progress_ms,omitempty"`
+	DurationMs *int   `json:"duration_ms,omitempty"`
+	Artist     string `json:"artist"`
+	Title      string `json:"title"`
+	ImageUrl   string `json:"image_url,omitempty"`
 }
 
 func (i Track) MarshalBinary() ([]byte, error) {

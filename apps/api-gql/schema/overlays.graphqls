@@ -75,6 +75,7 @@ enum NowPlayingOverlayPreset {
 	TRANSPARENT
 	AIDEN_REDESIGN
 	SIMPLE_LINE
+	COMPACT
 }
 
 type NowPlayingOverlay {
@@ -101,6 +102,8 @@ type NowPlayingOverlayTrack {
 	artist: String!
 	title: String!
 	imageUrl: String
+	progressMs: Int
+	durationMs: Int
 }
 
 type TTSUserSettings {

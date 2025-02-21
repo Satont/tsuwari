@@ -39,6 +39,8 @@ export function useNowPlayingSocket(options: Options) {
 					title
 					artist
 					imageUrl
+					progressMs
+					durationMs
 				}
 			}
 		`),

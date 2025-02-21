@@ -731,12 +731,14 @@ func (r *subscriptionResolver) nowPlayingCurrentTrackSubscription(
 				}
 
 				channel <- &gqlmodel.NowPlayingOverlayTrack{
-					Artist:   track.Artist,
-					Title:    track.Title,
-					ImageURL: imageUrl,
+					Artist:     track.Artist,
+					Title:      track.Title,
+					ImageURL:   imageUrl,
+					ProgressMs: track.ProgressMs,
+					DurationMs: track.DurationMs,
 				}
 
-				time.Sleep(5 * time.Second)
+				time.Sleep(1 * time.Second)
 			}
 		}
 	}()

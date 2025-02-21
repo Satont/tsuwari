@@ -90,6 +90,7 @@ const fontWeightOptions = computed(() => {
 						{ label: 'Aiden Redesign', value: 'AIDEN_REDESIGN' },
 						{ label: 'Transparent', value: 'TRANSPARENT' },
 						{ label: 'Simple line', value: 'SIMPLE_LINE' },
+						{ label: 'Compact', value: 'COMPACT' },
 					]"
 				/>
 			</NFormItem>

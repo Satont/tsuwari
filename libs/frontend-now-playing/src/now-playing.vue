@@ -5,6 +5,7 @@ import { useFontSource } from '@twir/fontsource'
 import { computed, watch } from 'vue'
 
 import PresetAidenRedesign from './presets/aiden-redesign.vue'
+import PresetCompact from './presets/compact.vue'
 import PresetSimpleLine from './presets/simple-line.vue'
 import PresetTransparent from './presets/transparent.vue'
 import { Preset } from './types.js'
@@ -24,6 +25,8 @@ const presetComponent = computed(() => {
 			return PresetAidenRedesign
 		case Preset.SIMPLE_LINE:
 			return PresetSimpleLine
+		case Preset.COMPACT:
+			return PresetCompact
 		default:
 			return PresetTransparent
 	}
